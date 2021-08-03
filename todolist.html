@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-wEmeIV1mKuiNpC+IOBjI7aAzPcEZeedi5yW5f2yOq55WWLwNGmvvx4Um1vskeMj0"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css?family=Eagle+Lake"
+      rel="stylesheet"
+    />
+    <style>
+      .completed {
+        text-decoration: line-through;
+      }
+
+      body {
+        background-image: url("https://www.city2farmer.com/tcnr15/img/pngtree-520-valentine-s-day-dream-c4d-wind-banner-background-image_234476.jpg");
+        height: 100vh;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: cover;
+        font-family: "Eagle Lake", cursive;
+        text-align: center;
+        font-weight: 400;
+      }
+
+      .text-gold {
+        color: #fdef87;
+      }
+      .bg-pink {
+        background-color: #ff67e7;
+      }
+      .bg-pink-light {
+        background-color: rgba(254, 172, 199, 0.4);
+      }
+      .card {
+        width: 35vw;
+        margin-left: 38%;
+        margin-top: 8%;
+      }
+      .table {
+        width: 45vw;
+        margin-left: 30%;
+        margin-top: 1%;
+      }
+      .complete {
+        text-decoration: line-through;
+      }
+      .history {
+        margin-top: 10%;
+      }
+    </style>
+  </head>
+
+  <body class="bgi">
+    <div id="app" class="d-flex">
+      <div class="container">
+        <h1 class="text-gold mt-5 mb-3">
+          &nbsp; &nbsp;
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          Disneyland Park
+        </h1>
+        <div class="card bg-pink pb-3 px-3">
+          <h3 class="text-gold mt-2 mb-3">Add Program</h3>
+          <div class="input-group mb-3">
+            <span class="input-group-text">Program</span>
+            <input
+              v-model="newTodo"
+              @keyup.enter="addItem"
+              type="text"
+              class="form-control"
+              placeholder="please add item"
+            />
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              @click="addItem"
+            >
+              Add
+            </button>
+          </div>
+
+          <ul class="nav nav-tabs mx-auto">
+            <li class="nav-item">
+              <a
+                href="#"
+                class="nav-link text-gold"
+                @click="visibility='all'"
+                :class="{'active':visibility=='all'}"
+                >All({{count}})</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                href="#"
+                class="nav-link text-gold mx-3"
+                @click="visibility='go'"
+                :class="{'active':visibility=='go'}"
+                >Go Play({{goTotal}})</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                href="#"
+                class="nav-link text-gold"
+                @click="visibility='done'"
+                :class="{'active':visibility=='done'}"
+                >Done</a
+              >
+            </li>
+          </ul>
+        </div>
+        <table class="table text-muted">
+          <thead>
+            <tr>
+              <th scope="col" colspan="2">Number</th>
+              <th scope="col" colspan="8">program</th>
+              <th scope="col" colspan="2">edit</th>
+              <th scope="col" colspan="2">delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(item,index) in filterTodo" :key="item.id">
+              <th scope="row" colspan="2">
+                <input
+                  type="checkbox"
+                  v-model="item.completed"
+                  @click="item.completed = !item.completed"
+                />
+                {{item.id}}
+              </th>
+              <td colspan="8">
+                <p
+                  v-if="cacheItem.id != item.id"
+                  :class="{'complete':item.completed}"
+                >
+                  {{item.title}}
+                </p>
+                <input
+                  type="text"
+                  v-model="cacheTitle"
+                  v-if="cacheItem.id == item.id"
+                  @keyup.enter="doneEdit(item)"
+                  @keyup.esc="cancleEdit"
+                />
+              </td>
+              <td colspan="2">
+                <button
+                  class="btn btn-warning text-white btn-sm"
+                  @click="editItem(item)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-pencil"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207 11.207 2.5zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293l6.5-6.5zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z"
+                    />
+                  </svg>
+                </button>
+              </td>
+              <td colspan="2">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  @click="removeItem(index)"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    fill="currentColor"
+                    class="bi bi-trash"
+                    viewBox="0 0 16 16"
+                  >
+                    <path
+                      d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"
+                    />
+                    <path
+                      fill-rule="evenodd"
+                      d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"
+                    />
+                  </svg>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div
+        style="width: 420px; height: 480px"
+        class="me-3 text-gold bg-pink-light history"
+      >
+        <h4>History <span @click="clear">(clear)</span></h4>
+        <small>
+          <ul>
+            <li
+              v-for="(item,key) in record.slice(-15)"
+              :key="item.id"
+              class="text-start ms-3"
+            >
+              <div class="d-flex justify-content-between">
+                <div class="h5">{{item}}</div>
+                <button
+                  type="button"
+                  class="close btn-outline-light text-muted h5"
+                  @click="removeRecord(key)"
+                >
+                  &times;
+                </button>
+              </div>
+            </li>
+          </ul>
+        </small>
+      </div>
+    </div>
+    <script
+      src="https://code.jquery.com/jquery-3.6.0.min.js"
+      integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-p34f1UUtsS3wqzfto5wAAmdvj+osOnFyQFpp4Ua3gs/ZVWx6oOypYoCJhGGScy+8"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://unpkg.com/vue@next"></script>
+
+    <script>
+      Vue.createApp({
+        data() {
+          return {
+            newTodo: "",
+            todos: [],
+            cacheTitle: "",
+            cacheItem: [],
+            visibility: "all",
+            record: [],
+            count: 0,
+            isActive: false,
+          };
+        },
+        methods: {
+          addItem() {
+            let ID = this.todos.length + 1;
+            let value = this.newTodo.trim();
+            if (this.newTodo == "" || ID > 5) {
+              alert("Can't over five");
+              return;
+            } else {
+              this.todos.push({
+                id: ID,
+                title: value,
+                completed: false,
+              });
+              this.count++;
+              this.newTodo = "";
+            }
+            this.record.push(value);
+            this.setItem();
+            this.getItem();
+          },
+          removeItem(index) {
+            this.count--;
+            this.todos.splice(index, 1);
+          },
+          editItem(item) {
+            this.cacheItem = item;
+            this.cacheTitle = item.title;
+          },
+          doneEdit(item) {
+            item.title = this.todos.title;
+            this.record.splice(item.title, 1);
+            item.title = this.cacheTitle;
+            this.record.push(item.title);
+
+            this.setItem();
+            this.getItem();
+            this.cacheTitle = "";
+            this.cacheItem = "";
+          },
+          cancleEdit() {
+            this.cacheTitle = "";
+            this.cacheItem = "";
+          },
+          setItem() {
+            localStorage.setItem("total", JSON.stringify(this.record));
+          },
+          getItem() {
+            this.record = JSON.parse(localStorage.getItem("total")) || [];
+          },
+          removeRecord(key) {
+            this.record.splice(key, 1);
+            this.setItem();
+            this.getItem();
+          },
+          clear() {
+            this.record = localStorage.clear();
+            this.getItem();
+          },
+        },
+
+        computed: {
+          filterTodo() {
+            if (this.visibility == "done") {
+              let goTodos = [];
+              this.todos.forEach((item) => {
+                if (item.completed) {
+                  goTodos.push(item);
+                }
+              });
+              return goTodos;
+            } else if (this.visibility == "go") {
+              let goTodos = [];
+              this.todos.forEach((item) => {
+                if (!item.completed) {
+                  goTodos.push(item);
+                }
+              });
+              return goTodos;
+            } else {
+              return this.todos;
+            }
+          },
+          goTotal() {
+            let goCount = 0;
+            this.todos.forEach((item) => {
+              if (!item.completed) {
+                goCount++;
+              }
+            });
+            return goCount;
+          },
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
